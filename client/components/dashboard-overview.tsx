@@ -220,7 +220,7 @@ export function DashboardOverview() {
       {/* Welcome Section */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Good morning, John! 👋</h1>
+          <h1 className="text-3xl font-bold">Good morning, Johnss! 👋</h1>
           <p className="text-muted-foreground">Here's what's happening at Grand Hotel today</p>
         </div>
         <div className="flex items-center gap-2">

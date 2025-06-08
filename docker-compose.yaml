@@ -1,0 +1,63 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=test2002$
+      - MYSQL_DATABASE=film_db
+      - MYSQL_USER=test
+      - MYSQL_PASSWORD=test2002$
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 9s
+      retries: 2
+    restart: unless-stopped
+    
+  backend:
+    build:
+      context: ./backend
+      target: development  # Change to 'production' for final build
+    ports:
+      - "8080:8080"
+      - "5005:5005"  # For remote debugging
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    volumes:
+      - ./backend/src:/app/src
+      - ~/.m2:/root/.m2
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,29 +1,26 @@
 services:
   mysql:
-    image: mysql:8.0
+    image: mysql:8
+    container_name: staysync-mysql
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=test2002$
-      - MYSQL_DATABASE=film_db
-      - MYSQL_USER=test
-      - MYSQL_PASSWORD=test2002$
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: staysync_db
     volumes:
       - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 9s
-      retries: 2
-    restart: unless-stopped
-    
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: hoteleon-backend
+    container_name: staysync-backend
     ports:
       - "8080:8080"
     environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/staysync_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DEVTOOLS_RESTART_ENABLED=true
       - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
@@ -34,23 +31,25 @@ services:
     depends_on:
       - mysql
 
-
-  # frontend:
-  #   build:
-  #     context: ./client
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./frontend/src:/app/src
-  #     - /app/node_modules
-  #   environment:
-  #     - NODE_ENV=development
-  #     - CHOKIDAR_USEPOLLING=true
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - app-network
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: staysync-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client/src:/app/src
+      - ./client/public:/app/public
+      - ./client/package.json:/app/package.json
+      - ./client/next.config.mjs:/app/next.config.mjs
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+    depends_on:
+      - backend
 
 volumes:
   mysql_data:

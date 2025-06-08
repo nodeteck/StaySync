@@ -15,7 +15,7 @@ import java.util.List;
 public class UserController {
     @GetMapping("/greetisng")
     public String getGreeting() {
-        return "Hello, World!";
+        return "Hello, World! hoho";
     }
 
     @Autowired

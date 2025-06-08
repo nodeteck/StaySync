@@ -39,14 +39,12 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./client/src:/app/src
-      - ./client/public:/app/public
-      - ./client/package.json:/app/package.json
-      - ./client/next.config.mjs:/app/next.config.mjs
+      - ./client:/app
       - /app/node_modules
       - /app/.next
     environment:
       - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
     depends_on:
       - backend

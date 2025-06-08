@@ -1,5 +1,5 @@
 # Development stage
-FROM node:18-alpine AS development
+FROM node:18-alpine
 
 WORKDIR /app
 
@@ -12,9 +12,12 @@ RUN npm install --legacy-peer-deps
 # Copy the rest of the application
 COPY . .
 
-# Create .next directory to avoid permission issues
-RUN mkdir -p .next
+# Create .next directory and set permissions
+RUN mkdir -p .next && chown -R node:node /app
+USER node
 
-# Expose port and start the app
+# Expose port
 EXPOSE 3000
+
+# Start the development server with proper host binding
 CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0", "--port", "3000"]

@@ -1,6 +1,3 @@
-# docker-compose.yml
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
@@ -22,38 +19,38 @@ services:
   backend:
     build:
       context: ./backend
-      target: development  # Change to 'production' for final build
+      dockerfile: Dockerfile
+    container_name: hoteleon-backend
     ports:
       - "8080:8080"
-      - "5005:5005"  # For remote debugging
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DEVTOOLS_RESTART_ENABLED=true
-      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
     volumes:
       - ./backend/src:/app/src
-      - ~/.m2:/root/.m2
+      - ./backend/pom.xml:/app/pom.xml
+      - ./backend/target:/app/target
     depends_on:
-      mysql:
-        condition: service_healthy
-    restart: unless-stopped
+      - mysql
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend/src:/app/src
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
-    depends_on:
-      - backend
-    networks:
-      - app-network
+
+  # frontend:
+  #   build:
+  #     context: ./client
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./frontend/src:/app/src
+  #     - /app/node_modules
+  #   environment:
+  #     - NODE_ENV=development
+  #     - CHOKIDAR_USEPOLLING=true
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - app-network
 
 volumes:
   mysql_data:

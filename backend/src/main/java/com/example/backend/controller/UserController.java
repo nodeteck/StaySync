@@ -13,7 +13,7 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping(value = "/api/v1/")
 public class UserController {
-    @GetMapping("/greeting")
+    @GetMapping("/greetisng")
     public String getGreeting() {
         return "Hello, World!";
     }
@@ -21,7 +21,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/getUser")
+    @GetMapping("/getUsesr")
     public List<UserDTO> getUser() {
         return userService.getAllUsers();
     }

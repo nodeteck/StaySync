@@ -18,12 +18,13 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/staysync_db
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/staysync_db?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DEVTOOLS_RESTART_ENABLED=true
       - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
+      - JWT_SECRET=20020709
     volumes:
       - ./backend/src:/app/src
       - ./backend/pom.xml:/app/pom.xml

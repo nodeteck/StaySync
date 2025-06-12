@@ -1,29 +1,23 @@
 package com.example.backend.service;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.example.backend.repo.UserRepo;
-import com.example.backend.dto.UserDTO;
-import java.util.List;
 import com.example.backend.model.User;
-import jakarta.transaction.Transactional;
+import com.example.backend.repositories.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import java.util.Optional;
 
 @Service
-@Transactional
 public class UserService {
     @Autowired
-    private UserRepo userRepo;
+    private UserRepository userRepository;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
-    public List<UserDTO> getAllUsers() {
-        List<User> userList = userRepo.findAll();
-        return modelMapper.map(userList, new TypeToken<List<UserDTO>>(){}.getType());
-        
+    public User save(User user) {
+        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        return userRepository.save(user);
     }
 
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 }

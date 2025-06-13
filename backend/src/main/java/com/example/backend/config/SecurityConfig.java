@@ -30,12 +30,13 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/register").permitAll()
-                // .requestMatchers("/api/v1/greeting").permitAll()
+                .requestMatchers("/api/v1/greeting").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             );
+            
         return http.build();
     }
 

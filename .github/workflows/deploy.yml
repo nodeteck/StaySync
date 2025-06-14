@@ -3,11 +3,11 @@ name: StaySync CI/CD
 on:
   push:
     branches:
-      - main
+      - '*'
       - authentication
   pull_request:
     branches:
-      - main
+      - '*'
 
 jobs:
   build-and-deploy:
@@ -44,7 +44,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Cache Maven packages
         uses: actions/cache@v4

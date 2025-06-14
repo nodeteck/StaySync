@@ -4,11 +4,12 @@ services:
     container_name: staysync-mysql
     ports:
       - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: staysync_db
+    env_file:
+      - .env
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
 
   backend:
     build:
@@ -17,20 +18,16 @@ services:
     container_name: staysync-backend
     ports:
       - "8080:8080"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/staysync_db?createDatabaseIfNotExist=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DEVTOOLS_RESTART_ENABLED=true
-      - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
-      - JWT_SECRET=20020709
+    env_file:
+      - .env
     volumes:
       - ./backend/src:/app/src
       - ./backend/pom.xml:/app/pom.xml
       - ./backend/target:/app/target
     depends_on:
-      - mysql
+      - mysql 
+    networks:
+      - app-network
 
   frontend:
     build:
@@ -41,17 +38,19 @@ services:
       - "3000:3000"
     volumes:
       - ./client:/app
-      - /app/node_modules
-      - /app/.next
-    environment:
-      - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
+      - node_modules:/app/node_modules
+      - next_cache:/app/.next
+    env_file:
+      - .env
     depends_on:
       - backend
+    networks:
+      - app-network
 
 volumes:
   mysql_data:
+  node_modules:
+  next_cache:
 
 networks:
   app-network:

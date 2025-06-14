@@ -58,12 +58,12 @@ jobs:
         working-directory: ./backend
         run: ./mvnw clean package -DskipTests
 
-      - name: Build frontend
-        working-directory: ./client
-        run: |
-          npm install --legacy-peer-deps
-          npm install --force
-          npm run build
+    #   - name: Build frontend
+    #     working-directory: ./client
+    #     run: |
+    #       npm install --legacy-peer-deps
+    #       npm install --force
+    #       npm run build
 
       - name: Run Docker Compose
         run: |

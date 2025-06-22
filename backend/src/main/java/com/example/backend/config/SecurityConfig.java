@@ -1,5 +1,6 @@
 package com.example.backend.config;
 
+import com.example.backend.repositories.UserRepository;
 import com.example.backend.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,17 +21,18 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
-    public SecurityConfig(UserService userService) {
-        this.userService = userService;
+    public SecurityConfig(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
+    
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/register").permitAll()
+                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register").permitAll()
                 .requestMatchers("/api/v1/greeting").permitAll()
                 .anyRequest().authenticated()
             )
@@ -42,13 +45,13 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userService.findByUsername(username)
+        return username -> userRepository.findByUsername(username)
             .map(user -> org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
                 .password(user.getPassword())
-                .authorities("USER") // or use roles if needed
+                .authorities("USER")
                 .build()
-            ).orElseThrow(() -> new RuntimeException("User not found"));
+            ).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Bean

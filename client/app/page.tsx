@@ -56,7 +56,7 @@ export default function LoginPage() {
       const data = await response.json();
       
       // Store the token (in localStorage for this example)
-      localStorage.setItem('authToken', data.token);
+       document.cookie = `authToken=${data.token}; Path=/; Secure; SameSite=Strict; Max-Age=86400`;
       
       // Optional: You might want to store other user data as well
       // localStorage.setItem('user', JSON.stringify(data.user));

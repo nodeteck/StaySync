@@ -1,12 +1,13 @@
 package com.example.backend.controller;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.example.backend.dto.AuthRequest;
 import com.example.backend.model.User;
 import com.example.backend.service.UserService;
-
+import com.example.backend.repositories.UserRepository;
 import jakarta.validation.Valid;
 
 import com.example.backend.JWTUtility.JwtUtil;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +33,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
     private JwtUtil jwtUtil;
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
 
@@ -64,14 +69,28 @@ public ResponseEntity<?> register(@Valid @RequestBody AuthRequest authRequest) {
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
 }
 
+@PostMapping("/login")
+public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
+    // Authenticate user
+    authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
+    );
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
-        );
-        String token = jwtUtil.generateToken(authRequest.getUsername());
-        return ResponseEntity.ok(Collections.singletonMap("token", token));
-    }
+    // Load user details (assuming you have a UserDetailsService or similar)
+    User user = userRepository.findByUsername(authRequest.getUsername())
+        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+    // Generate JWT token
+    String token = jwtUtil.generateToken(authRequest.getUsername());
+
+    // Return username, userId, and token
+    Map<String, Object> response = new HashMap<>();
+    response.put("username", user.getUsername());
+    response.put("userId", user.getId());  // assuming getId() returns user ID
+    response.put("token", token);
+
+    return ResponseEntity.ok(response);
+}
+
 }
 

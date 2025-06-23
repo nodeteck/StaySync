@@ -67,7 +67,7 @@ export default function LoginPage() {
 
     
     sessionStorage.setItem('user', JSON.stringify({
-      id: data.id,
+      id: data.userId,
       username: data.username
     }));
 

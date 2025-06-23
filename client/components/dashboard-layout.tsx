@@ -47,6 +47,8 @@ interface DashboardLayoutProps {
 
 const logout = async () => {
   try {
+    sessionStorage.removeItem('user');
+
     deleteCookie('authToken', {
       path: '/',
       secure: process.env.NODE_ENV === 'production',

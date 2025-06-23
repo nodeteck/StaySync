@@ -31,13 +31,13 @@ import {
 import { deleteCookie } from 'cookies-next';
 const navigation = [
   { name: "Overview", href: "/", icon: BarChart3 },
-  { name: "Reservations", href: "/reservations", icon: Calendar },
-  { name: "Front Desk", href: "/front-desk", icon: Users },
-  { name: "Rooms", href: "/rooms", icon: Bed },
-  { name: "Housekeeping", href: "/housekeeping", icon: ClipboardList },
-  { name: "Financial", href: "/financial", icon: DollarSign },
-  { name: "Reports", href: "/reports", icon: BarChart3 },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Reservations", href: "/dashboard/reservations", icon: Calendar },
+  { name: "Front Desk", href: "/dashboard/front-desk", icon: Users },
+  { name: "Rooms", href: "/dashboard/rooms", icon: Bed },
+  { name: "Housekeeping", href: "/dashboard/housekeeping", icon: ClipboardList },
+  { name: "Financial", href: "/dashboard/financial", icon: DollarSign },
+  { name: "Reports", href: "/dashboard/reports", icon: BarChart3 },
+  { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 
 interface DashboardLayoutProps {

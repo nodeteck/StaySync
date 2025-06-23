@@ -58,15 +58,20 @@ export default function LoginPage() {
         throw new Error('No token received');
       }
 
-      // Set cookie client-side
-      setCookie('authToken', data.token, {
-        maxAge: 60 * 60 * 10, // 10 hours
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-      });
+     setCookie('authToken', data.token, {
+      maxAge: 60 * 60 * 10, // 10 hours
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
 
-      toast.success('Login successful!');
+    
+    sessionStorage.setItem('user', JSON.stringify({
+      id: data.id,
+      username: data.username
+    }));
+
+    toast.success('Login successful!');
       router.push('/dashboard');
       
     } catch (error) {

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin
 @RequestMapping(value = "/api/v1/")
-public class UserController {
+public class Controller {
     @GetMapping("/greeting")
     public String getGreeting() {
         return "Hello, World! hoho";

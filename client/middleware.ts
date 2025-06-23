@@ -1,38 +1,59 @@
-// middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
+import { jwtVerify, base64url } from 'jose';
 
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'fallback-secret-min-32-chars' // Always use a strong secret!
-);
+// Decode your Base64-encoded secret to raw bytes for verification
+const rawSecret = process.env.JWT_SECRET || 'your-spring-boot-secret-key';
+const secret = base64url.decode(rawSecret);
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get('authToken')?.value;
+  const url = req.nextUrl.clone();
 
-  // Redirect to login if no token
+  // URL of login page (root '/')
+  const loginUrl = new URL('/', req.url);
+
+  // If no token, redirect to login (root)
   if (!token) {
-    return NextResponse.redirect(new URL('/', req.url)); // Use absolute URL
+    // If user is already trying to access login page, just proceed
+    if (url.pathname === '/') {
+      return NextResponse.next();
+    }
+    return NextResponse.redirect(loginUrl);
   }
 
-  // try {
-  //   // Verify token (with proper error handling)
-  //   await jwtVerify(token, secret, {
-  //     algorithms: ['HS256'], // Explicitly specify algorithm
-  //   });
-  //   return NextResponse.next();
-  // } catch (err) {
-  //   // Clear invalid token and redirect
-  //   const response = NextResponse.redirect(new URL('/', req.url));
-  //   response.cookies.delete('authToken'); // Force logout
-  //   return response;
-  // }
+  try {
+    const { payload } = await jwtVerify(token, secret, {
+      algorithms: ['HS256'],
+      requiredClaims: ['sub', 'exp', 'iat'],
+    });
+
+    if (!payload.sub) {
+      throw new Error('Invalid token: missing subject');
+    }
+
+    // If user is on root path and token is valid, redirect to /dashboard
+    if (url.pathname === '/') {
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url);
+    }
+
+    // Token valid - proceed normally
+    return NextResponse.next();
+
+  } catch (error) {
+    console.error('JWT verification failed:', error);
+    const response = NextResponse.redirect(loginUrl);
+    response.cookies.delete('authToken');
+    return response;
+  }
 }
 
 export const config = {
   matcher: [
+    '/', // also check root for redirect if logged in
     '/dashboard', 
     '/dashboard/:path*',
-    '/profile/:path*'
+    '/profile/:path*',
   ],
 };

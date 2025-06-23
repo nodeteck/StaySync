@@ -4,8 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner"; // or any other toast library you're using
-
+import { toast } from "sonner";
+import { setCookie } from 'cookies-next';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,7 +20,6 @@ import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Link from "next/link";
 
-// Form schema
 const formSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -29,7 +28,6 @@ const formSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   
-  // Form definition
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -38,7 +36,6 @@ export default function LoginPage() {
     },
   });
 
-  // Submit handler
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await fetch('http://localhost:8080/api/v1/auth/login', {
@@ -47,6 +44,7 @@ export default function LoginPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(values),
+       
       });
 
       if (!response.ok) {
@@ -55,16 +53,20 @@ export default function LoginPage() {
 
       const data = await response.json();
       
-      // Store the token (in localStorage for this example)
-       document.cookie = `authToken=${data.token}; Path=/; Secure; SameSite=Strict; Max-Age=86400`;
-      
-      // Optional: You might want to store other user data as well
-      // localStorage.setItem('user', JSON.stringify(data.user));
-      
-      // Show success message
+      if (!data.token) {
+        alert('No token received from server');
+        throw new Error('No token received');
+      }
+
+      // Set cookie client-side
+      setCookie('authToken', data.token, {
+        maxAge: 60 * 60 * 10, // 10 hours
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
+
       toast.success('Login successful!');
-      
-      // Redirect to dashboard or home page
       router.push('/dashboard');
       
     } catch (error) {
@@ -123,16 +125,6 @@ export default function LoginPage() {
             <Link href="/register" className="text-primary hover:underline">
               Sign up
             </Link>
-          </div>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
           </div>
         </CardFooter>
       </Card>

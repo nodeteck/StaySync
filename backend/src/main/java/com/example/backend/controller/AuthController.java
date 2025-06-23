@@ -21,12 +21,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;  
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-@CrossOrigin(origins = "http://localhost:3000")
-
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
  @RequestMapping("/api/v1/auth")
   public class AuthController {
-    @Autowired
+    @Autowired  
     private AuthenticationManager authenticationManager;
     @Autowired
     private JwtUtil jwtUtil;

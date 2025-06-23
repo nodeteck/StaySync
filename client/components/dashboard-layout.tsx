@@ -18,6 +18,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -27,7 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
+import { deleteCookie } from 'cookies-next';
 const navigation = [
   { name: "Overview", href: "/", icon: BarChart3 },
   { name: "Reservations", href: "/reservations", icon: Calendar },
@@ -43,6 +44,20 @@ interface DashboardLayoutProps {
   children: React.ReactNode
   currentPage?: string
 }
+
+const logout = async () => {
+  try {
+    deleteCookie('authToken', {
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    window.location.href = '/';
+  } catch (error) {
+    console.error('Logout failed:', error);
+  }
+};
 
 export function DashboardLayout({ children, currentPage = "Overview" }: DashboardLayoutProps) {
   return (
@@ -118,7 +133,11 @@ export function DashboardLayout({ children, currentPage = "Overview" }: Dashboar
                   <DropdownMenuItem>Profile</DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Log out</DropdownMenuItem>
+                
+
+                <DropdownMenuItem onClick={logout}>
+                  Log out
+                </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
